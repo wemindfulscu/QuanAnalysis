@@ -1,0 +1,22 @@
+{
+    "smtp_server": "smtp.163.com",
+    "smtp_port": 465,
+    "sender_email": "prof_dgw@163.com",
+    "sender_password": "NSYfqsVRKU8ucQxC",
+    "sender_name": "量化监控系统",
+    "enabled": true,
+    "_comment": "邮件发送配置说明",
+    "_instructions": {
+        "smtp_server": "SMTP服务器地址，QQ邮箱：smtp.qq.com，163邮箱：smtp.163.com，Gmail：smtp.gmail.com",
+        "smtp_port": "SMTP端口，SSL通常为465，TLS通常为587",
+        "sender_email": "发件人邮箱地址",
+        "sender_password": "邮箱授权码（不是登录密码！）",
+        "sender_name": "发件人显示名称",
+        "enabled": "是否启用邮件功能，设置为true启用",
+        "how_to_get_auth_code": {
+            "QQ邮箱": "1.登录QQ邮箱网页版 2.设置->账户 3.开启SMTP服务 4.生成授权码",
+            "163邮箱": "1.登录163邮箱 2.设置->POP3/SMTP/IMAP 3.开启SMTP服务 4.设置授权密码",
+            "Gmail": "1.开启两步验证 2.生成应用专用密码 3.使用该密码作为授权码"
+        }
+    }
+}

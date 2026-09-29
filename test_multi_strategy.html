@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>多策略选择测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        select[multiple] {
+            width: 100%;
+            min-height: 150px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        select[multiple] option {
+            padding: 8px 10px;
+            border-radius: 4px;
+            margin: 2px 0;
+            cursor: pointer;
+        }
+        select[multiple] option:hover {
+            background-color: #f0f2f5;
+        }
+        select[multiple] option:checked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f2f5;
+            border-radius: 6px;
+        }
+        .result h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📊 多策略选择测试</h2>
+        
+        <div class="form-group">
+            <label>选择策略（可多选，Ctrl+点击）：</label>
+            <select id="strategySelect" multiple>
+                <option value="default">默认策略</option>
+                <option value="macd_cross">MACD金叉死叉</option>
+                <option value="kdj_cross">KDJ金叉死叉</option>
+                <option value="bollinger">布林带突破</option>
+                <option value="rsi_extreme">RSI超买超卖</option>
+                <option value="ma_trend">均线趋势</option>
+            </select>
+        </div>
+        
+        <button onclick="testSelection()">测试选择</button>
+        <button onclick="setMultiple()" style="margin-left: 10px; background: #48bb78;">预设多选</button>
+        
+        <div id="result" class="result" style="display: none;">
+            <h3>选择结果</h3>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        function parseStrategies(strategyStr) {
+            if (!strategyStr) return ['default'];
+            
+            try {
+                const parsed = JSON.parse(strategyStr);
+                return Array.isArray(parsed) ? parsed : [strategyStr];
+            } catch {
+                return [strategyStr];
+            }
+        }
+        
+        function formatStrategies(strategyStr) {
+            const strategies = parseStrategies(strategyStr);
+            if (strategies.length === 1) {
+                return strategies[0];
+            }
+            return `${strategies.length}个策略`;
+        }
+        
+        function testSelection() {
+            const select = document.getElementById('strategySelect');
+            const selectedOptions = Array.from(select.selectedOptions).map(opt => opt.value);
+            
+            if (selectedOptions.length === 0) {
+                alert('请至少选择一个策略！');
+                return;
+            }
+            
+            const jsonStr = JSON.stringify(selectedOptions);
+            const formatted = formatStrategies(jsonStr);
+            
+            document.getElementById('resultContent').innerHTML = `
+                <p><strong>选中数量：</strong>${selectedOptions.length}</p>
+                <p><strong>策略列表：</strong>${selectedOptions.join(', ')}</p>
+                <p><strong>JSON格式：</strong></p>
+                <div class="code">${jsonStr}</div>
+                <p><strong>显示格式：</strong>${formatted}</p>
+                <p style="margin-top: 15px;"><strong>解析测试：</strong></p>
+                <div class="code">parseStrategies('${jsonStr}') = [${parseStrategies(jsonStr).join(', ')}]</div>
+            `;
+            
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        function setMultiple() {
+            const select = document.getElementById('strategySelect');
+            // 预设选择：MACD、KDJ、布林带
+            const toSelect = ['macd_cross', 'kdj_cross', 'bollinger'];
+            
+            Array.from(select.options).forEach(option => {
+                option.selected = toSelect.includes(option.value);
+            });
+            
+            testSelection();
+        }
+    </script>
+</body>
+</html>

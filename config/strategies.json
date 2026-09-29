@@ -1,0 +1,59 @@
+{
+  "strategies": [
+    {
+      "name": "RSI超买卖",
+      "buy_expression": "[RSI,0,c,14]<30",
+      "sell_expression": "[RSI,0,c,14]>70"
+    },
+    {
+      "name": "短期均线上下穿长期",
+      "buy_expression": "[MA,0,c,5]>[MA,0,c,50]",
+      "sell_expression": "[MA,0,c,5]<[MA,0,c,50]"
+    },
+    {
+      "name": "RSI超买卖且反转",
+      "buy_expression": "[RSI,0,c,14]<30 && [RSI,0,c,14]>[RSI,-1,c,14]",
+      "sell_expression": "[RSI,0,c,14]>70 && [RSI,0,c,14]<[RSI,-1,c,14]"
+    },
+    {
+      "name": "MACD穿零线",
+      "buy_expression": "[MACD,0,c]>0 && [MACD,-1,c]<0",
+      "sell_expression": "[MACD,0,c]<0 && [MACD,-1,c]>0"
+    },
+    {
+      "name": "RSI组合MACD",
+      "buy_expression": "[RSI,0,c,14]<40 && [MACD,0,c]>0",
+      "sell_expression": "[MACD,0,c]<0 && [RSI,0,c,14]>70"
+    },
+    {
+      "name": "超买卖短期RSI交叉长期RSI",
+      "buy_expression": "[RSI,0,c,6]<50 && [RSI,0,c,14]<50 && [RSI,0,c,6]>[RSI,0,c,14]",
+      "sell_expression": "[RSI,0,c,6]>80 && [RSI,0,c,14]>80 && [RSI,0,c,6]<[RSI,0,c,14]"
+    },
+    {
+      "name": "定投",
+      "buy_expression": "0<50",
+      "sell_expression": "0>80"
+    },
+    {
+      "name": "RSI超买卖拐点",
+      "buy_expression": "[RSI,0,c,14]<30",
+      "sell_expression": "[RSI,0,c,14]>70 && [RSI,0,c,14]<[RSI,-1,c,14]"
+    },
+    {
+      "name": "RSI超买卖2",
+      "buy_expression": "[RSI,0,c,14]<30",
+      "sell_expression": "[RSI,0,c,30]>70"
+    },
+    {
+      "name": "短期成交量上下穿长期",
+      "buy_expression": "[TR,0,t]>[MTR,0,t,5]",
+      "sell_expression": "[TR,0,t]<[MTR,0,t,5]"
+    },
+    {
+      "name": "均线RSI抄底",
+      "buy_expression": "([CLOSE,0,c]-[MA,0,c,20])/[MA,0,c,20]<-0.08||[RSI,0,c,14]<30",
+      "sell_expression": "([CLOSE,0,c]-[MA,0,c,20])/[MA,0,c,20]>0.15&&[RSI,0,c,30]>70&&[RSI,0,c,14]>70"
+    }
+  ]
+}

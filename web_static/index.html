@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量化决策系统 Web版</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="logo">
+                <h1>📊 量化决策系统</h1>
+                <span class="version">Web v2.1</span>
+            </div>
+            <div class="system-info">
+                <span id="watchlistCount">监控: 0</span>
+                <span id="strategyCount">策略: 0</span>
+                <span id="status" class="status-ready">就绪</span>
+            </div>
+        </header>
+
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <button class="btn btn-success" onclick="showAddDialog()">➕ 添加</button>
+            <button class="btn btn-danger" onclick="removeWatchlist()">❌ 移除</button>
+            <button class="btn btn-info" onclick="updateSelectedData()">🔄 更新数据</button>
+            <button class="btn btn-warning" onclick="scanSelectedSignal()">📊 扫描信号</button>
+            <button class="btn btn-secondary" onclick="showSearchDialog()">🔍 搜索</button>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 左侧面板 -->
+            <div class="left-panel">
+                <!-- 监控列表 -->
+                <div class="panel">
+                    <h3 class="panel-title">监控列表</h3>
+                    <div class="watchlist-container">
+                        <table class="watchlist-table" id="watchlistTable">
+                            <thead>
+                                <tr>
+                                    <th>代码</th>
+                                    <th>名称</th>
+                                    <th>类型</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="watchlistBody">
+                                <!-- 动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 指数信息 -->
+                <div class="panel">
+                    <h3 class="panel-title">指数信息</h3>
+                    <div class="info-container" id="indexInfo">
+                        <p class="info-placeholder">请选择一个指数查看详情</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧面板 -->
+            <div class="right-panel">
+                <!-- 标签页 -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="kline" onclick="switchTab('kline')">K线图</button>
+                    <button class="tab-btn" data-tab="indicators" onclick="switchTab('indicators')">技术指标</button>
+                    <button class="tab-btn" data-tab="analysis" onclick="switchTab('analysis')">综合分析</button>
+                    <button class="tab-btn" data-tab="signals" onclick="switchTab('signals')">交易信号</button>
+                    <button class="tab-btn" data-tab="monitor" onclick="switchTab('monitor')">⏰ 监控任务</button>
+                </div>
+
+                <!-- 标签页内容 -->
+                <div class="tab-content">
+                    <!-- K线图 -->
+                    <div class="tab-pane active" id="kline">
+                        <div id="klineChart" class="chart-container"></div>
+                    </div>
+
+                    <!-- 技术指标 -->
+                    <div class="tab-pane" id="indicators">
+                        <div id="rsiChart" class="chart-container-small"></div>
+                        <div id="macdChart" class="chart-container-small"></div>
+                        <div id="kdjChart" class="chart-container-small"></div>
+                    </div>
+
+                    <!-- 综合分析 -->
+                    <div class="tab-pane" id="analysis">
+                        <div id="analysisContent" class="analysis-content">
+                            <p class="info-placeholder">请选择指数查看综合分析</p>
+                        </div>
+                    </div>
+
+                    <!-- 交易信号 -->
+                    <div class="tab-pane" id="signals">
+                        <table class="signals-table" id="signalsTable">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>代码</th>
+                                    <th>名称</th>
+                                    <th>策略</th>
+                                    <th>信号</th>
+                                    <th>价格</th>
+                                </tr>
+                            </thead>
+                            <tbody id="signalsBody">
+                                <!-- 动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 监控任务 -->
+                    <div class="tab-pane" id="monitor">
+                        <div class="monitor-container">
+                            <!-- 任务控制面板 -->
+                            <div class="monitor-toolbar">
+                                <button class="btn btn-success btn-sm" onclick="showAddMonitorTaskForm()">➕ 添加任务</button>
+                                <button class="btn btn-info btn-sm" onclick="testMonitorEmail()">📧 测试邮件</button>
+                                <div style="flex: 1;"></div>
+                                <span id="schedulerStatus" class="status-badge">调度器未启动</span>
+                            </div>
+
+                            <!-- 添加/编辑任务表单（初始隐藏） -->
+                            <div id="addMonitorTaskForm" class="task-form" style="display: none;">
+                                <h4 id="taskFormTitle">新建监控任务</h4>
+                                <input type="hidden" id="editTaskId" value="">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>选择指数：<span style="color: red;">*</span></label>
+                                        <select id="monitorSymbol" class="form-control">
+                                            <option value="">-- 请从监控列表选择 --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>任务名称：<span style="color: red;">*</span></label>
+                                        <input type="text" id="monitorTaskName" class="form-control" placeholder="例如：纳斯达克100买入监控">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>接收邮箱：<span style="color: red;">*</span></label>
+                                        <input type="email" id="monitorEmail" class="form-control" placeholder="example@email.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>数据更新时间：</label>
+                                        <input type="time" id="monitorUpdateTime" class="form-control" value="09:30">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>信号扫描时间：</label>
+                                        <input type="time" id="monitorScanTime" class="form-control" value="15:30">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>使用策略：<small style="color: #666;">（可多选，Ctrl+点击）</small></label>
+                                        <select id="monitorStrategy" class="form-control" multiple size="5" 
+                                                style="height: auto; min-height: 120px;">
+                                            <option value="default">默认策略</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>备注：</label>
+                                    <textarea id="monitorRemark" class="form-control" rows="2" placeholder="可选，任务描述或备注信息"></textarea>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button class="btn btn-secondary" onclick="cancelMonitorTaskForm()">取消</button>
+                                    <button class="btn btn-success" onclick="saveMonitorTask()">保存</button>
+                                </div>
+                            </div>
+
+                            <!-- 任务列表 -->
+                            <div class="monitor-tasks">
+                                <table class="signals-table" id="monitorTasksTable">
+                                    <thead>
+                                        <tr>
+                                            <th width="5%">ID</th>
+                                            <th width="10%">代码</th>
+                                            <th width="15%">任务名称</th>
+                                            <th width="12%">邮箱</th>
+                                            <th width="8%">更新时间</th>
+                                            <th width="8%">扫描时间</th>
+                                            <th width="8%" title="监控使用的策略，显示策略数量">策略</th>
+                                            <th width="8%">状态</th>
+                                            <th width="10%">最后扫描</th>
+                                            <th width="16%">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="monitorTasksBody">
+                                        <tr>
+                                            <td colspan="10" class="info-placeholder">暂无监控任务，点击"添加任务"创建</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加监控对话框 -->
+    <div id="addDialog" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加监控</h3>
+                <span class="close" onclick="closeModal('addDialog')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>指数代码/名称：</label>
+                    <input type="text" id="addSymbol" placeholder="如：BK0001, 新能源汽车等">
+                </div>
+                <div class="form-group">
+                    <label>显示名称：</label>
+                    <input type="text" id="addName" placeholder="自定义显示名称">
+                </div>
+                <div class="form-group">
+                    <label>类型：</label>
+                    <select id="addType">
+                        <option value="">自动检测</option>
+                        <option value="industry">行业板块</option>
+                        <option value="concept">概念板块</option>
+                        <option value="csindex">中证指数</option>
+                        <option value="hk_tech">恒生科技</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addDialog')">取消</button>
+                <button class="btn btn-success" onclick="confirmAdd()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索对话框 -->
+    <div id="searchDialog" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>搜索指数</h3>
+                <span class="close" onclick="closeModal('searchDialog')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" id="searchInput" placeholder="输入关键字搜索..." 
+                           onkeyup="performSearch()">
+                </div>
+                <div id="searchResults" class="search-results">
+                    <!-- 搜索结果 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('searchDialog')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="monitor_tasks.js"></script>
+</body>
+</html>
